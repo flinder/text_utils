@@ -33,7 +33,8 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
     doc = parser(text) 
     n_gram_list = []
     tokens = []
-    stopwords = set(stopwords)
+    if stopwords is not None:
+        stopwords = set(stopwords)
 
     if lemmatize:
         for sentence in doc.sents:
