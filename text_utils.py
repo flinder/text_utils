@@ -87,13 +87,16 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
             tokens.append(stemmer.stemWord(token.orth_.lower()))
 
     # Generate n-grams
-    for index, token in enumerate(tokens):
-        try:
-            gram_tokens = [tokens[i] for i in range(index, (index + n))]
-        except IndexError:
-            break 
-        gram = '_'.join(gram_tokens)
-        n_gram_list.append(gram)
+    if n > 1:
+    	for index, token in enumerate(tokens):
+            try:
+            	gram_tokens = [tokens[i] for i in range(index, (index + n))]
+            except IndexError:
+            	break 
+            gram = '_'.join(gram_tokens)
+            n_gram_list.append(gram)
+    else:
+        n_gram_list = tokens
 
     return n_gram_list
 
