@@ -14,6 +14,41 @@ from gensim import matutils
 from gensim import models
 import sys
 
+class Cleaner(object):
+
+    def __init__(self):
+        '''Load several regex used for text cleaning and redaction
+        '''
+        self.re_apo = re.compile(r'\s(t|d|s|ll|m|ve|nt|re)(\s|$|!|\?|\.|:|,)')
+        self.re_white = re.compile(r'(\s)+|^\s|\s$')
+        self.re_url = re.compile(r'http:[^\s$,:]+')
+        self.re_hashtag = re.compile(r'(^|\s)#[^\s$\n]+')
+        self.re_handle = re.compile(r'@[^\s$\n]+')
+        self.re_exclude = re.compile(r'[^A-Za-z @#_]')
+        #self.re_exclude = re.compile(r'[\.,\(\)-+=!\$%\^&\*<>"\';:]')        
+        self.re_linebreak = re.compile(r'\n')
+        self.re_hashsep = re.compile(r'(#)( )([^\s]+)')
+        self.re_at = re.compile(r'@(\s|$)')
+
+    def pre_clean(self, string):
+        string = self.re_linebreak.sub(r'', string)
+        string = self.re_apo.sub(r"'\1\2", string)
+        string = self.re_at.sub(r"at\1", string)
+        string = self.re_white.sub(r' ', string)
+        if string.isspace() or string == '':
+            string = '__empty__'
+     
+        return string
+
+    def post_clean(self, string): 
+        string = self.re_exclude.sub('', string) 
+        string = self.re_hashsep.sub(r'\1\3', string)
+        string = self.re_white.sub(r' ', string)
+        if string.isspace() or string == '':
+            string = '__empty__'
+
+        return string
+
 def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
         lemmatize=True):
     '''Generate list of n-grams from text 
@@ -52,13 +87,16 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
             tokens.append(stemmer.stemWord(token.orth_.lower()))
 
     # Generate n-grams
-    for index, token in enumerate(tokens):
-        try:
-            gram_tokens = [tokens[i] for i in range(index, (index + n))]
-        except IndexError:
-            break 
-        gram = '_'.join(gram_tokens)
-        n_gram_list.append(gram)
+    if n > 1:
+    	for index, token in enumerate(tokens):
+            try:
+            	gram_tokens = [tokens[i] for i in range(index, (index + n))]
+            except IndexError:
+            	break 
+            gram = '_'.join(gram_tokens)
+            n_gram_list.append(gram)
+    else:
+        n_gram_list = tokens
 
     return n_gram_list
 
@@ -189,39 +227,6 @@ def tdm_from_stream(dict_file, text_file, use_tfidf, limit=None):
                                    printprogress=0, num_docs=dictionary.num_docs)
     return features
 
-class Cleaner(object):
 
-    def __init__(self):
-        '''Load several regex used for text cleaning and redaction
-        '''
-        self.re_apo = re.compile(r'\s(t|d|s|ll|m|ve|nt|re)(\s|$|!|\?|\.|:|,)')
-        self.re_white = re.compile(r'(\s)+|^\s|\s$')
-        self.re_url = re.compile(r'http:[^\s$,:]+')
-        self.re_hashtag = re.compile(r'(^|\s)#[^\s$\n]+')
-        self.re_handle = re.compile(r'@[^\s$\n]+')
-        self.re_exclude = re.compile(r'[^A-Za-z @#_]')
-        #self.re_exclude = re.compile(r'[\.,\(\)-+=!\$%\^&\*<>"\';:]')        
-        self.re_linebreak = re.compile(r'\n')
-        self.re_hashsep = re.compile(r'(#)( )([^\s]+)')
-        self.re_at = re.compile(r'@(\s|$)')
-
-    def pre_clean(self, string):
-        string = self.re_linebreak.sub(r'', string)
-        string = self.re_apo.sub(r"'\1\2", string)
-        string = self.re_at.sub(r"at\1", string)
-        string = self.re_white.sub(r' ', string)
-        if string.isspace() or string == '':
-            string = '__empty__'
-     
-        return string
-
-    def post_clean(self, string): 
-        string = self.re_exclude.sub('', string) 
-        string = self.re_hashsep.sub(r'\1\3', string)
-        string = self.re_white.sub(r' ', string)
-        if string.isspace() or string == '':
-            string = '__empty__'
-
-        return string
 
 
