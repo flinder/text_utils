@@ -130,6 +130,41 @@ class TweetCorpus(object):
                 yield self.dictionary.doc2bow(line.split())
         print('\n' + unicode(index))
 
+
+class CorpusStream(object):
+    '''
+    A stream object for text stored in a text file (one line per doc)
+
+    Arguments:
+    ----------
+    dictionary: Gensim dictionary with terms to include
+    text_input (str): Input file
+    use_tfidf (bool): Should tf-idf scores be used instead of wordcounts
+    status (bool): Should status updates be printed
+    '''
+    def __init__(self, dictionary, text_input, status, use_tfidf):
+        self.dictionary = dictionary
+        self.text_input  = io.open(text_input, 'r', encoding='utf-8')
+        self.use_tfidf = use_tfidf
+        self.status = status
+
+    def __iter__(self):
+        if self.use_tfidf: 
+            self.tfidf = models.TfidfModel(dictionary=self.dictionary)     
+        for index, line in enumerate(self.text_input): 
+            if index % 1000 == 0 and self.status:
+                print("\rProcessed {} documents".format(index), end='')
+                sys.stdout.flush()
+            if self.use_tfidf:
+                yield self.tfidf[self.dictionary.doc2bow(line.split())]
+            else:
+                yield self.dictionary.doc2bow(line.split())
+
+        print('\n' + unicode(index))
+
+
+
+
 def tdm_from_stream(dict_file, text_file, use_tfidf, limit=None):
     '''
     Generate a term document matrix from a dictionary and a text input
