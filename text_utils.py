@@ -90,13 +90,14 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
     if n > 1:
         if len(tokens) < 2:
             n_gram_list.append(tokens[0])
-    	for index, token in enumerate(tokens):
-            try:
-            	gram_tokens = [tokens[i] for i in range(index, (index + n))]
-            except IndexError:
-            	break 
-            gram = '_'.join(gram_tokens)
-            n_gram_list.append(gram)
+        else:
+    	    for index, token in enumerate(tokens):
+                try:
+                	gram_tokens = [tokens[i] for i in range(index, (index + n))]
+                except IndexError:
+                	break 
+                gram = '_'.join(gram_tokens)
+                n_gram_list.append(gram)
     else:
         n_gram_list = tokens
 
