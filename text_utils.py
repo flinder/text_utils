@@ -88,6 +88,8 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
 
     # Generate n-grams
     if n > 1:
+        if len(tokens) < 2:
+            n_gram_list.append(tokens[0])
     	for index, token in enumerate(tokens):
             try:
             	gram_tokens = [tokens[i] for i in range(index, (index + n))]
