@@ -91,8 +91,9 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
         return None
 
     if n > 1:
-        if len(tokens) < 2:
-            n_gram_list.append(tokens[0])
+        if len(tokens) < n:
+            gram = '_'.join(tokens)
+            n_gram_list.append(gram)
         else:
     	    for index, token in enumerate(tokens):
                 try:
