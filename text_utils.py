@@ -87,6 +87,9 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
             tokens.append(stemmer.stemWord(token.orth_.lower()))
 
     # Generate n-grams
+    if len(tokens) == 0:
+        return None
+
     if n > 1:
         if len(tokens) < 2:
             n_gram_list.append(tokens[0])
@@ -102,6 +105,8 @@ def n_grams(text, parser, n = 1, stemmer = None, stopwords = None,
         n_gram_list = tokens
 
     return n_gram_list
+
+
 
 def extract_tweet(line, field):
     '''Extract tweet from tab separated line
